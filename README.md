@@ -13,5 +13,5 @@ Hệ thống chia sẻ file cho phép người dùng gửi và tải file qua l�
 
 ### Công nghệ sử dụng:
 
-Java: Ngôn ngữ lập trình chính để xây dựng hệ thống.
-Java SocketIO: Để quản lý giao tiếp mạng giữa các client và server.
+- Java: Ngôn ngữ lập trình chính để xây dựng hệ thống.
+- Java SocketIO: Để quản lý giao tiếp mạng giữa các client và server.
