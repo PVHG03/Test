@@ -1,0 +1,26 @@
+# NetBeans specific folders
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# Maven specific files
+target/
+build/
+
+# Ignore any log files
+*.log
+
+# Ignore IDE config files
+*.iml
+.idea/
+
+# Ignore OS specific files
+.DS_Store
+Thumbs.db
+
+# Other backups
+*.bak
+*.swp
+*.tmp
