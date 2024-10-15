@@ -24,3 +24,61 @@ Thumbs.db
 *.bak
 *.swp
 *.tmp
+
+# User-specific files
+.idea/
+*.iml
+*.iws
+
+# IntelliJ-specific files
+out/
+.idea_modules/
+
+# Gradle-specific files (if using Gradle)
+.gradle/
+build/
+
+# Maven-specific files (if using Maven)
+target/
+
+# Log files
+*.log
+
+# Temporary files
+*.swp
+*.tmp
+*.bak
+*.orig
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Java-related exclusions
+*.class
+*.jar
+*.war
+*.ear
+
+# Generated files (coverage, reports, etc.)
+/coverage/
+*.class
+*.test
+
+# Ignore all JAR files in the project lib directory
+lib/*.jar
+
+# Python virtual environment (if any)
+venv/
+
+# JetBrains Rider specific exclusions
+.idea/.idea.*
+.idea/libraries/
+.idea/workspace.xml
+.idea/vcs.xml
+.idea/jsLibraryMappings.xml
+
+# Ignore IDE and project configuration files
+.idea/dictionaries/
+.idea/shelf/
+
