@@ -82,3 +82,5 @@ venv/
 .idea/dictionaries/
 .idea/shelf/
 
+/ClientIO/nbproject/private/
+/ServerIO/nbproject/private/
