@@ -4,10 +4,18 @@
  */
 package clientio;
 
+import data.DataReader;
 import io.socket.client.IO;
+import static io.socket.client.IO.socket;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
+import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -20,6 +28,7 @@ public class Main_Client extends javax.swing.JFrame {
      */
     public Main_Client() {
         initComponents();
+        model = (DefaultTableModel) table.getModel();
     }
 
     /**
@@ -117,15 +126,32 @@ public class Main_Client extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
     private final int DEFAULT_PORT = 9999; // Port must be the same server port
+    private final DefaultTableModel model;
     private String IP = "localhost";
+    private Socket client;
+    
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        JFileChooser ch = new JFileChooser();
+        ch.setMultiSelectionEnabled(true);
+        int opt = ch.showOpenDialog(this);
+        if (opt == JFileChooser.APPROVE_OPTION) {
+            File [] files = ch.getSelectedFiles();
+            for(File file : files) {
+                try {
+                    DataReader reader = new DataReader(file);
+                    model.addRow(reader.toRowTable(table.getRowCount() + 1));
+                    reader.startSend(client);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void cmdConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdConnectActionPerformed
         // TODO add your handling code here:
         try {
-            Socket client = IO.socket("http://" + IP + ":" + DEFAULT_PORT);
+            client = IO.socket("http://" + IP + ":" + DEFAULT_PORT);
             //Add event to client
             client.on("exit_app", new Emitter.Listener() {
                 @Override

@@ -4,12 +4,15 @@
  */
 package data;
 
+import io.socket.client.Ack;
+import io.socket.client.Socket;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.text.DecimalFormat;
-
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class DataReader {
 
@@ -90,21 +93,20 @@ public class DataReader {
         this.fileSize = accFile.length();
         this.fileName = file.getName();
     }
-    
-    
+
     private int fileID;
     private File file;
     private long fileSize;
     private String fileName;
     private RandomAccessFile accFile;
-    
-    public byte [] readFile() throws IOException {
+
+    public synchronized byte[] readFile() throws IOException {
         long filePointer = accFile.getFilePointer();
         if (filePointer != fileSize) {
             int max = 2000;
             // 2000 is max send file per package
             //we spite it to send large file
-            long length = filePointer + max >= fileSize?fileSize-filePointer:max;
+            long length = filePointer + max >= fileSize ? fileSize - filePointer : max;
             byte[] data = new byte[(int) length];
             accFile.read(data);
             return data;
@@ -112,11 +114,11 @@ public class DataReader {
             return null;
         }
     }
-    
+
     public void close() throws IOException {
         accFile.close();
     }
-    
+
     public String getFileSizeConverted() {
         double bytes = fileSize;
         String[] fileSizeUnits = {"bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
@@ -132,11 +134,77 @@ public class DataReader {
         sizeToReturn = df.format(bytes) + " " + fileSizeUnits[index];
         return sizeToReturn;
     }
-    
+
     public double getPercentage() throws IOException {
-        double percentage = 0;
+        double percentage;
         long filePointer = accFile.getFilePointer();
         percentage = filePointer * 100 / fileSize;
-        return  percentage;
+        return percentage;
+    }
+
+    public Object[] toRowTable(int no) {
+        return new Object[]{this, no, fileName, getFileSizeConverted(), "Next update"};
+    }
+
+    public void startSend(Socket socket) throws JSONException {
+        JSONObject data = new JSONObject();
+        data.put("fileName", fileName);
+        data.put("fileSize", fileSize);
+        socket.emit("send_file", data, new Ack() {
+            @Override
+            public void call(Object... os) {
+                //this call back function
+                // Index 0 boolean, Index 1 FileID
+                if (os.length > 0) {
+                    boolean action = (boolean) os[0];
+                    if (action) {
+                        //fileID generate by server then return back with this function
+
+                        fileID = (int) os[1];
+                        //starting send file
+                        try {
+                            sendingFile(socket);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                // This call back function
+            }
+        });
+    }
+
+    private void sendingFile(Socket socket) throws IOException, JSONException {
+        JSONObject data = new JSONObject();
+        data.put("fileID", fileID);
+        byte[] bytes = readFile();
+        if (bytes != null) {
+            data.put("data", bytes);
+            data.put("finish", false);
+        } else {
+            data.put("finish", true);
+            close();//close file
+        }
+        socket.emit("sending", data, new Ack() {
+            @Override
+            public void call(Object... os) {
+                //Call back function to sending more file
+                // This function meaning the server has receive file we have sent
+                // So we need to send more files until we finish 
+                // We response boolean true or false
+                if (os.length > 0) {
+                    boolean act = (boolean) os[0];
+                    if (act) {
+                        try {
+                            // This function will recursive until act = false 
+                            sendingFile(socket);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+
     }
 }

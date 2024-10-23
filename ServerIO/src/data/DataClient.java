@@ -5,6 +5,8 @@
 package data;
 
 import com.corundumstudio.socketio.SocketIOClient;
+import java.io.IOException;
+import java.util.HashMap;
 
 /**
  *
@@ -14,6 +16,9 @@ public class DataClient {
 
     private SocketIOClient client;
     private String name;
+    //Key interger is fileID
+    //Use hash to store multi transfer
+    private final HashMap<Integer, DataWriter> list = new HashMap<>();
 
     /**
      * @return the client
@@ -49,6 +54,14 @@ public class DataClient {
     }
 
     public DataClient() {
+    }
+    
+    public void addWrite(DataWriter data, int fileID) {
+        list.put(fileID, data);
+    }
+    
+    public void writeFile(byte[] data, int fileID) throws IOException {
+        list.get(fileID).writeFile(data);
     }
 
     public Object[] toRowTable(int row) {
